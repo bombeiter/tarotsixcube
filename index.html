@@ -148,6 +148,18 @@ button.primary:hover{box-shadow:0 0 30px rgba(216,177,90,.4)}
 .signature .sig-orn{font-family:'Cinzel',serif; letter-spacing:.18em; font-size:11px; color:var(--gold); opacity:.85}
 .signature b{font-family:'Cinzel',serif; letter-spacing:.06em; font-size:15px; color:var(--gold2); font-weight:600}
 .signature a{color:var(--gold2); text-decoration:none; border-bottom:1px solid rgba(216,177,90,.4)}
+.infobox{position:relative; max-width:620px; margin:28px auto 8px; padding:22px 26px;
+  border:1px solid var(--gold); border-radius:6px;
+  background:linear-gradient(180deg,rgba(216,177,90,.07),rgba(216,177,90,.015));
+  box-shadow:0 0 32px rgba(216,177,90,.07)}
+.infobox::before{content:"✦"; position:absolute; top:-11px; left:50%; transform:translateX(-50%);
+  background:var(--bg); padding:0 10px; color:var(--gold); font-size:14px}
+.infobox .ib-tag{font-family:'Cinzel',serif; letter-spacing:.3em; font-size:11px; text-transform:uppercase;
+  color:var(--gold); text-align:center; margin-bottom:8px}
+.infobox h3{font-family:'Cinzel',serif; font-weight:500; color:var(--gold2); letter-spacing:.1em;
+  font-size:18px; text-align:center; margin-bottom:12px}
+.infobox p{font-family:'Cormorant Garamond',serif; font-size:17px; line-height:1.7; color:var(--ink); margin:0}
+.infobox p strong{color:var(--gold2); font-weight:600}
 .klang{margin:4px 0 16px; padding:14px 16px; border:1px solid var(--line); border-radius:6px;
   background:linear-gradient(180deg,rgba(216,177,90,.07),rgba(216,177,90,.01))}
 .klang-h{font-family:'Cinzel',serif; letter-spacing:.12em; font-size:12px; color:var(--gold); text-transform:uppercase; margin-bottom:10px}
@@ -323,6 +335,11 @@ button.ghost{background:transparent; border:1px solid var(--line-soft); padding:
       <p class="hero-sub">Jede Karte trägt einen realen Ton der kosmischen Oktave. Zieh sie, höre sie, deute sie.</p>
     </div>
     <div class="modes" id="modes"></div>
+    <div class="infobox">
+      <div class="ib-tag">Was ist Tarot?</div>
+      <h3>Ein Spiegel aus 78 Karten</h3>
+      <p>Tarot sagt nicht starr die Zukunft voraus, sondern legt das <strong>Muster</strong> offen, in dem du gerade stehst. Die <strong>Große Arkana</strong> (22 Trümpfe) zeigt die großen seelischen Kräfte und Lebensstationen, die <strong>Kleine Arkana</strong> (56 Karten in vier Farben) das gelebte Alltagsgeschehen. Jede Karte hier trägt zudem einen realen Ton der kosmischen Oktave &mdash; zieh sie, höre sie, deute sie.</p>
+    </div>
     <div class="signature">
       <div class="sig-orn">✦ PRIVATE LEGUNGEN ✦</div>
       <div style="margin-top:6px">by Spielemacher <b>Sixcube</b></div>
