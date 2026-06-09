@@ -294,6 +294,34 @@ button.ghost{background:transparent; border:1px solid var(--line-soft); padding:
 @keyframes logoFloat{0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)}}
 @media(prefers-reduced-motion:reduce){.hero-logo img{animation:logoIn .6s ease both}}
 
+/* ===== Kartenrad (Großes Arkana, 3D) ===== */
+.wheel-stage{position:relative; height:clamp(380px,52vh,560px); margin:18px auto 4px;
+  perspective:1300px; cursor:grab; touch-action:pan-y; user-select:none; -webkit-user-select:none}
+.wheel-stage:active{cursor:grabbing}
+.wheel-stage::after{content:""; position:absolute; left:50%; bottom:8%; width:min(72vw,560px); height:60px;
+  transform:translateX(-50%); background:radial-gradient(ellipse at center,rgba(216,177,90,.16),transparent 70%); pointer-events:none}
+.wheel-ring{position:absolute; top:50%; left:50%; width:0; height:0;
+  transform-style:preserve-3d; will-change:transform}
+.wheel-card{position:absolute; width:118px; height:185px; left:-59px; top:-92px;
+  transform-style:preserve-3d; cursor:pointer; transition:filter .3s ease}
+.wheel-card .wc-face{position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  border-radius:9px; overflow:hidden; box-shadow:0 14px 34px rgba(0,0,0,.55), 0 0 0 1px rgba(216,177,90,.28)}
+.wheel-card .wc-face svg{width:100%; height:100%; display:block}
+.wheel-card .wc-back{transform:rotateY(0deg)}
+.wheel-card .wc-front{transform:rotateY(180deg); background:#0d0818}
+.wheel-card.flipped{z-index:5}
+.wheel-card .wc-inner{position:absolute; inset:0; transform-style:preserve-3d; transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.wheel-card.flipped .wc-inner{transform:rotateY(180deg)}
+.wheel-card:hover{filter:drop-shadow(0 0 16px rgba(216,177,90,.45))}
+.wheel-reveal{max-width:560px; margin:6px auto 0; text-align:center; padding:18px 22px;
+  border:1px solid var(--gold); border-radius:6px;
+  background:linear-gradient(180deg,rgba(216,177,90,.07),rgba(216,177,90,.015)); animation:fadeUp .5s ease both}
+.wheel-reveal .wr-roman{font-family:'Cinzel',serif; letter-spacing:.3em; font-size:12px; color:var(--gold)}
+.wheel-reveal .wr-name{font-family:'Cinzel',serif; font-size:22px; color:var(--gold2); margin:4px 0 2px; letter-spacing:.06em}
+.wheel-reveal .wr-astro{font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--ink-dim); font-size:15px; margin-bottom:10px}
+.wheel-reveal .wr-mean{font-family:'Cormorant Garamond',serif; font-size:17px; line-height:1.65; color:var(--ink)}
+@media(max-width:560px){.wheel-card{width:92px; height:144px; left:-46px; top:-72px}}
+
 /* ===== Hintergrund-Sigil (Logo 2), ganzflaechig, sehr schwach pulsierend ===== */
 .cosmos .sigil{position:absolute; top:50%; left:50%; width:min(170vh,130vw); height:auto;
   transform:translate(-50%,-50%); opacity:.05; pointer-events:none;
@@ -321,6 +349,7 @@ button.ghost{background:transparent; border:1px solid var(--line-soft); padding:
     <span class="brand-tag">Frequenz-Tarot</span>
   </div>
   <div class="top-actions">
+    <button class="ghost" onclick="openWheel()">✦ Kartenrad</button>
     <button class="ghost" onclick="openExplain()">✦ Wie Tarot funktioniert</button>
     <button id="tuneBtn" class="ghost" onclick="toggleTuning()">A = 432 Hz</button>
   </div>
@@ -372,6 +401,27 @@ button.ghost{background:transparent; border:1px solid var(--line-soft); padding:
     </div>
 
     <div class="footer">Tippe eine aufgedeckte Karte für Symbole, Bedeutung und ihren Ton.</div>
+  </section>
+
+  <section id="wheel-view" class="view">
+    <div class="rv-top">
+      <button class="ghost back" onclick="goHome()">← Zurück</button>
+      <div class="rv-head"><div class="rv-title">Das Rad der Großen Arkana</div><div class="rv-sub">Zieh am Rad, um es zu drehen · tippe eine Karte, um sie aufzudecken</div></div>
+      <div class="rv-tools"><button class="ghost" onclick="spinWheel()">↻ Anstoßen</button></div>
+    </div>
+
+    <div class="wheel-stage" id="wheelStage">
+      <div class="wheel-ring" id="wheelRing"></div>
+    </div>
+
+    <div class="wheel-reveal" id="wheelReveal" hidden>
+      <div class="wr-roman" id="wrRoman"></div>
+      <div class="wr-name" id="wrName"></div>
+      <div class="wr-astro" id="wrAstro"></div>
+      <div class="wr-mean" id="wrMean"></div>
+    </div>
+
+    <div class="footer">22 Trümpfe vom Narren bis zum Universum, kreisend wie das Jahr.</div>
   </section>
 </main>
 
@@ -903,9 +953,78 @@ function openMode(m){
 }
 function goHome(){
   MODE='home';
-  document.getElementById('reading-view').classList.remove('active');
+  stopWheel();
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('home').classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ===== Kartenrad: 3D-Ring der Großen Arkana ===== */
+const WHEEL={ angle:0, vel:0, raf:0, dragging:false, lastX:0, lastT:0, built:false, radius:300, cards:[] };
+function buildWheel(){
+  const ring=document.getElementById('wheelRing');
+  const majors=DECK.filter(c=>c.suit==='major');
+  WHEEL.cards=majors;
+  const n=majors.length, step=360/n;
+  WHEEL.radius=Math.round(Math.min(window.innerWidth*0.52, 360));
+  ring.innerHTML=majors.map((c,i)=>`
+    <div class="wheel-card" data-i="${i}" style="transform:rotateY(${i*step}deg) translateZ(${WHEEL.radius}px)">
+      <div class="wc-inner">
+        <div class="wc-face wc-back">${cardBackSVG()}</div>
+        <div class="wc-face wc-front">${cardFaceSVG(c)}</div>
+      </div>
+    </div>`).join('');
+  ring.querySelectorAll('.wheel-card').forEach(el=>{
+    el.addEventListener('click',e=>{
+      if(WHEEL.moved){return;}
+      const i=+el.dataset.i;
+      el.classList.toggle('flipped');
+      if(el.classList.contains('flipped')) revealCard(WHEEL.cards[i]);
+    });
+  });
+  WHEEL.built=true;
+}
+function revealCard(c){
+  const box=document.getElementById('wheelReveal');
+  document.getElementById('wrRoman').textContent=c.roman;
+  document.getElementById('wrName').textContent=c.name+' · '+c.eng;
+  document.getElementById('wrAstro').textContent=c.astro;
+  document.getElementById('wrMean').textContent=c.meaning;
+  box.hidden=false;
+}
+function wheelFrame(t){
+  if(!WHEEL.dragging){
+    WHEEL.angle += WHEEL.vel;
+    WHEEL.vel *= 0.95;                 // Reibung
+    if(Math.abs(WHEEL.vel)<0.02) WHEEL.vel = 0.04;  // sanftes Dauer-Drehen
+  }
+  document.getElementById('wheelRing').style.transform=`translateZ(-${WHEEL.radius}px) rotateY(${WHEEL.angle}deg)`;
+  WHEEL.raf=requestAnimationFrame(wheelFrame);
+}
+function spinWheel(){ WHEEL.vel += 5.5; }
+function stopWheel(){ if(WHEEL.raf){cancelAnimationFrame(WHEEL.raf); WHEEL.raf=0;} }
+function openWheel(){
+  MODE='wheel';
+  if(!WHEEL.built) buildWheel();
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('wheel-view').classList.add('active');
+  document.getElementById('wheelReveal').hidden=true;
+  document.querySelectorAll('#wheelRing .wheel-card.flipped').forEach(el=>el.classList.remove('flipped'));
+  stopWheel(); WHEEL.raf=requestAnimationFrame(wheelFrame);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function initWheelDrag(){
+  const stage=document.getElementById('wheelStage');
+  const down=x=>{WHEEL.dragging=true; WHEEL.moved=false; WHEEL.lastX=x; WHEEL.vel=0;};
+  const move=x=>{ if(!WHEEL.dragging)return; const dx=x-WHEEL.lastX; if(Math.abs(dx)>3)WHEEL.moved=true;
+    WHEEL.angle+=dx*0.35; WHEEL.vel=dx*0.35; WHEEL.lastX=x; };
+  const up=()=>{ WHEEL.dragging=false; };
+  stage.addEventListener('mousedown',e=>down(e.clientX));
+  window.addEventListener('mousemove',e=>move(e.clientX));
+  window.addEventListener('mouseup',up);
+  stage.addEventListener('touchstart',e=>down(e.touches[0].clientX),{passive:true});
+  stage.addEventListener('touchmove',e=>move(e.touches[0].clientX),{passive:true});
+  stage.addEventListener('touchend',up);
 }
 
 function buildSuits(){
@@ -1609,6 +1728,7 @@ function wireLogo(){const a=document.getElementById("brandLogo");if(a)a.src=LOGO
 wireLogo();
 buildSuits();
 buildModes();
+initWheelDrag();
 </script>
 </body>
 </html>
