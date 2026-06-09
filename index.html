@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Thoth Tarot · Vergangenheit · Gegenwart · Zukunft</title>
+<title>Six Tarot · Vergangenheit · Gegenwart · Zukunft</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
@@ -210,8 +210,18 @@ button.ghost{background:transparent; border:1px solid var(--line-soft); padding:
 
 .hero{text-align:center; padding:clamp(26px,6vw,72px) 0 26px}
 .hero .eyebrow{margin-bottom:14px}
-.hero h1{font-family:'Cinzel',serif; font-weight:600; color:var(--gold2); letter-spacing:.05em;
-  font-size:clamp(34px,6vw,66px); line-height:1.04; text-shadow:0 0 36px rgba(216,177,90,.2)}
+.hero h1{font-family:'Cinzel',serif; font-weight:600; letter-spacing:.05em; position:relative;
+  font-size:clamp(34px,6vw,66px); line-height:1.04;
+  background:linear-gradient(100deg,#9a7b34 0%,#f0d488 18%,#fff6da 34%,#ffffff 42%,#f0d488 56%,#9a7b34 74%,#f0d488 100%);
+  background-size:220% auto; -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; color:transparent;
+  animation:heroShine 6.5s linear infinite, heroGlow 4.6s ease-in-out infinite}
+.hero h1::after{content:""; position:absolute; left:50%; bottom:-15px; height:1.5px; width:0; transform:translateX(-50%);
+  background:linear-gradient(90deg,transparent,var(--gold2),transparent);
+  box-shadow:0 0 14px rgba(216,177,90,.7); animation:heroLine 1.5s cubic-bezier(.2,.7,.2,1) .35s forwards}
+@keyframes heroShine{to{background-position:-220% center}}
+@keyframes heroGlow{0%,100%{filter:drop-shadow(0 0 16px rgba(216,177,90,.16))}50%{filter:drop-shadow(0 0 34px rgba(216,177,90,.42))}}
+@keyframes heroLine{to{width:min(340px,62%)}}
 .hero-sub{font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--ink-dim);
   font-size:clamp(16px,2.2vw,22px); margin-top:12px}
 
@@ -269,6 +279,29 @@ button.ghost{background:transparent; border:1px solid var(--line-soft); padding:
 .mode-tile:hover .glare{opacity:1}
 .mode-tile .m-card,.mode-tile .m-title,.mode-tile .m-sub,.mode-tile .m-go{transform:translateZ(30px)}
 @media(hover:none){.card-frame,.mode-tile{transform:none!important}}
+
+/* ===== Lebendige Start-Kacheln: Schweben, Glow, Sheen, Aura ===== */
+@keyframes tileFloat{0%,100%{transform:translateZ(30px) translateY(0)}50%{transform:translateZ(30px) translateY(-12px)}}
+@keyframes cardGlow{0%,100%{box-shadow:0 16px 44px rgba(0,0,0,.6),0 0 0 1px var(--line),0 0 16px rgba(216,177,90,.10)}
+  50%{box-shadow:0 26px 62px rgba(0,0,0,.6),0 0 0 1px rgba(216,177,90,.6),0 0 46px rgba(216,177,90,.42)}}
+@keyframes sheen{0%{transform:translateX(-170%) rotate(11deg)}55%,100%{transform:translateX(280%) rotate(11deg)}}
+@keyframes auraBreathe{0%,100%{opacity:.4}50%{opacity:1}}
+.mode-tile .m-card{position:relative; animation:tileFloat 5.6s ease-in-out infinite, cardGlow 4.2s ease-in-out infinite}
+.mode-tile .m-card::before{content:""; position:absolute; top:-30%; left:0; width:55%; height:170%; z-index:3; pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,244,214,.5),transparent); transform:translateX(-170%) rotate(11deg);
+  animation:sheen 5.4s ease-in-out infinite}
+.mode-tile:nth-child(1) .m-card{animation-delay:0s,0s}
+.mode-tile:nth-child(2) .m-card{animation-delay:-1.9s,-1.3s}
+.mode-tile:nth-child(3) .m-card{animation-delay:-3.5s,-2.6s}
+.mode-tile:nth-child(1) .m-card::before{animation-delay:.3s}
+.mode-tile:nth-child(2) .m-card::before{animation-delay:2.1s}
+.mode-tile:nth-child(3) .m-card::before{animation-delay:3.9s}
+.mode-tile::after{animation:auraBreathe 4.6s ease-in-out infinite}
+.mode-tile:nth-child(2)::after{animation-delay:-1.5s}
+.mode-tile:nth-child(3)::after{animation-delay:-3s}
+@media(prefers-reduced-motion:reduce){
+  .mode-tile .m-card,.mode-tile .m-card::before,.mode-tile::after,.hero h1,.hero h1::after{animation:none!important}
+}
 
 /* Equalizer / Spektrum */
 .eq-panel{max-width:1080px; margin:26px auto 0; border:1px solid var(--line-soft); border-radius:12px;
@@ -344,8 +377,8 @@ button.ghost{background:transparent; border:1px solid var(--line-soft); padding:
 
 <header class="topbar">
   <div class="brand" onclick="goHome()">
-    <img class="brand-logo" id="brandLogo" alt="Thoth & Six">
-    <span class="brand-name">Thoth <i>&amp;</i> Six</span>
+    <img class="brand-logo" id="brandLogo" alt="Six Tarot">
+    <span class="brand-name">Six <i>·</i> Tarot</span>
     <span class="brand-tag">Frequenz-Tarot</span>
   </div>
   <div class="top-actions">
@@ -358,7 +391,7 @@ button.ghost{background:transparent; border:1px solid var(--line-soft); padding:
 <main class="stage">
   <section id="home" class="view active">
     <div class="hero">
-      <div class="hero-logo"><img id="heroLogo" alt="Thoth & Six"></div>
+      <div class="hero-logo"><img id="heroLogo" alt="Six Tarot"></div>
       <div class="eyebrow">Ein Orakel auf echten Frequenzen</div>
       <h1>Wähle deine Legung</h1>
       <p class="hero-sub">Jede Karte trägt einen realen Ton der kosmischen Oktave. Zieh sie, höre sie, deute sie.</p>
@@ -779,7 +812,7 @@ function cardBackSVG(){
     <circle r="62" opacity=".4"/><circle r="44"/><circle r="26"/>
     ${glyphSVG('rose',58,'#f0d488')}
   </g>
-  <g transform="translate(120,188)" fill="#d8b15a" opacity=".9"><text text-anchor="middle" y="120" font-family="Cinzel" font-size="10" letter-spacing="2.4">THOTH &amp; SIX</text></g>
+  <g transform="translate(120,188)" fill="#d8b15a" opacity=".9"><text text-anchor="middle" y="120" font-family="Cinzel" font-size="10" letter-spacing="2.4">SIX TAROT</text></g>
   ${[[24,24],[216,24],[24,352],[216,352]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3" fill="#d8b15a" opacity=".7"/>`).join('')}
   </svg>`;
 }
@@ -1190,7 +1223,7 @@ function posPhrase(c,key){
   return `Wenn der Weg so weitergeht, neigt sich alles in Richtung dieser Kraft (${kw}), das ist die Tendenz, kein Urteil.`;
 }
 
-/* ============ KLANG & FREQUENZ · Thoth & Six ============ */
+/* ============ KLANG & FREQUENZ · Six Tarot ============ */
 // Kosmische Oktave nach Hans Cousto (1978): aus Umlaufzeiten hochoktaviert, stimmungsunabhängig.
 const PLANET_HZ={'Sonne':126.22,'Mond':210.42,'Merkur':141.27,'Venus':221.23,'Mars':144.72,'Jupiter':183.58,'Saturn':147.85,'Uranus':207.36,'Neptun':211.44,'Pluto':140.64,'Erde':194.18,'OM':136.10};
 // Tierkreis -> chromatischer Halbton (Golden Dawn), Widder = C, dann aufsteigend
@@ -1568,7 +1601,7 @@ async function exportPDF(){
   // Deckblatt
   bg();
   doc.setFont('times','italic');doc.setFontSize(11);doc.setTextColor(...gold);
-  doc.text('THOTH & SIX · FREQUENZ-TAROT',W/2,38,{align:'center'});
+  doc.text('SIX TAROT · FREQUENZ-TAROT',W/2,38,{align:'center'});
   doc.setFont('times','bold');doc.setFontSize(30);doc.setTextColor(...dark);
   doc.text('Deine Legung',W/2,58,{align:'center'});
   doc.setDrawColor(...gold);doc.setLineWidth(.4);doc.line(W/2-40,64,W/2+40,64);
@@ -1678,9 +1711,9 @@ async function exportPDF(){
   doc.setFont('times','bold');doc.setFontSize(10);doc.setTextColor(...dark);
   doc.text('Private Legungen · Spielemacher Sixcube · bombeiter.2026@gmail.com',W/2,H-19,{align:'center'});
   doc.setFont('times','italic');doc.setFontSize(9.5);doc.setTextColor(...dim);
-  doc.text('Erstellt mit dem Thoth & Six Frequenz-Tarot · '+new Date().toLocaleDateString('de-DE'),W/2,H-14,{align:'center'});
+  doc.text('Erstellt mit dem Six Tarot Frequenz-Tarot · '+new Date().toLocaleDateString('de-DE'),W/2,H-14,{align:'center'});
 
-  doc.save('Thoth-und-Six-Frequenz-Tarot-Legung.pdf');
+  doc.save('Six-Tarot-Frequenz-Tarot-Legung.pdf');
   toast('PDF gespeichert ✦');
 }
 
@@ -1713,8 +1746,8 @@ async function exportSinglePDF(){
   doc.setFont('times','bold');doc.setFontSize(10);doc.setTextColor(...dark);
   doc.text('Private Legungen · Spielemacher Sixcube · bombeiter.2026@gmail.com',W/2,H-15,{align:'center'});
   doc.setFont('times','italic');doc.setFontSize(9.5);doc.setTextColor(...dim);
-  doc.text('Thoth & Six Frequenz-Tarot · '+new Date().toLocaleDateString('de-DE'),W/2,H-10,{align:'center'});
-  doc.save('Thoth-und-Six-'+(MODE==='daily'?'Tageskarte':'JaNein')+'.pdf');
+  doc.text('Six Tarot Frequenz-Tarot · '+new Date().toLocaleDateString('de-DE'),W/2,H-10,{align:'center'});
+  doc.save('Six-Tarot-'+(MODE==='daily'?'Tageskarte':'JaNein')+'.pdf');
   toast('PDF gespeichert ✦');
 }
 
